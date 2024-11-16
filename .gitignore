@@ -1,0 +1,18 @@
+*.bat
+*exe
+*.swo 
+*.swp
+*.o
+.*
+!.gitignore
+*.txt
+
+" Back up files ignored
+backup/
+Backup/
+BACKUP/
+" Executable files ignored
+exec/
+EXEC/
+Exec/
+
