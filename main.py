@@ -1,105 +1,118 @@
 import pew
 import random
 
-# Game Constants
-FPS = 10
+FPS = 15
 GAME_OVER_FPS = 3
 
-COL_FPS = 30
-MAX_COLSPEED = 3
-MIN_COLSPEED = 7
-
-frames_elapsed = 0
-
-screen = pew.Pix()
-
 pew.init()
-
-x = 1
-y = 3
-
-colx = 8
-space = 0
-col_speed = 6 
-col_passed = False
+screen = pew.Pix()
 game = True
 
-def drawCol(pos, space):
-    for i in range(8):
-        if i != space and i-1 != space and i-2 != space:
-            screen.pixel(pos, i, 1)
+class Player:
+    def __init__(self, x=0, y=3, height=2, type_player="player"):
+        self.x = x
+        self.y = y
+        self.height = height
+        self.type_player = type_player
+    
+    def collision(self):
+        if self.x < 0:
+            self.x = 0
+        elif self.x > 7:
+            self.x = 7
+
+        if self.y + self.height-1 < 0:
+            self.y = 0 - self.height+1
+        elif self.y > 7:
+            self.y = 7
+    
+    def draw(self, brightness=1):
+        x = self.x
+        y = self.y
+        height = self.height
+
+        for i in range(y, y+height):
+             if 0 <= i < 8:
+                screen.pixel(x,i,brightness) 
+
+    def update(self):
+        self.draw(0)
+
+        keys = pew.keys()
         
-def delCol(pos):
-    for i in range(8):
-        screen.pixel(pos, i, 0)
+        if self.type_player == "player": 
+            if keys & pew.K_UP:
+                self.y += -1
+            elif keys & pew.K_DOWN:
+                self.y += 1
 
-def Game():
-    global x, y, colx, space, col_speed, col_passed, game, frames_elapsed
-    # Erase 
-    screen.pixel(x,y, 0)
-    
-    # Draws moving column
-    delCol(colx)
-   
-    # Smooth sped up/ slow down of columns
-    if colx == 8:
-        if col_speed > MAX_COLSPEED and col_passed == True:
-             col_speed -= 1
-        elif col_speed < MIN_COLSPEED and col_passed == False:
-            col_speed += 1
+        self.collision()
+        self.draw(1)
 
-    if frames_elapsed % col_speed == 0:
-        colx -= 1
-        if not 0 <= colx <= 7:
-            space = random.randint(0, 7-2)
-            colx = 8
+player = Player()
+ai = Player(7,3,2,"ai")
 
-    drawCol(colx, space)
-    
-    # Player controls
-    keys = pew.keys()
-    
-    if keys & pew.K_O:
-        y -= 1
+class Ball:
+    def __init__(self, x=2, y=3, dx=1, dy=1):
+        self.x = x
+        self.y = y
+        self.dx = dx
+        self.dy = dy
 
-    elif frames_elapsed % 2:
-            y += 1 # Gravity
+    def touching_player(self, _player):
+        return _player.y <= self.y <= _player.y + _player.height-1
 
-    
+    def player_collision(self):
+        if self.x == 1 and self.touching_player(player):
+            self.dx = -self.dx
+            self.dy = self.randomdir()
+        elif self.x == 6 and self.touching_player(ai):
+            self.dx = -self.dx
+            self.dy = self.randomdir()
 
-    # Check player is not out of screen
-    if y > 7:
-        y = 7
-    elif y < 0:
-        y = 0
 
-    screen.pixel(x, y, 3)
+    def wall_collision(self):
+        global game 
 
-    # If player successfully passed column, we make column faster
-    if x == colx:
-        if space <= y <= space+2:
-            col_passed = True
-        else:
-            col_passed = False
+        if self.x <= 0:
             game = False
+        elif self.x > 7:
+            self.x = 7
+            self.dx = -self.dx
 
-    pew.show(screen)
-    pew.tick(1/FPS)
+        if self.y < 0:
+            self.y = 0
+            self.dy = -self.dy
+        elif self.y > 7:
+            self.y = 7
+            self.dy = -self.dy
+    
+    def randomdir(self):
+        return random.choice([-1, 0, 1])
 
-    frames_elapsed += 1
+    def collision(self):
+        self.wall_collision()
+        self.player_collision()
 
-    if frames_elapsed > 10:
-        frames_elapsed = 0
+    def update(self):
+        screen.pixel(self.x, self.y, 0)
 
-def GameOver():
-    global frames_elapsed, game, col_speed, y, colx, space, col_passed
+        self.collision()
+        self.x += self.dx
+        self.y += self.dy
+
+        screen.pixel(self.x, self.y, 3)  
+      
+ball = Ball()
+
+def GameOverAnim():
+    global screen
 
     screen = pew.Pix()
 
     i = 0
     while i <= 4:
         i += 1
-        # Draws game over screen
         if i == 1:
             screen.pixel(2, 2, 3)
             screen.pixel(5, 2, 3)
@@ -121,22 +134,34 @@ def GameOver():
         pew.tick(1/GAME_OVER_FPS)
 
 
+frames = 0
 while True:
     if game == True:
-        Game()
-    else: 
-        GameOver()
-        
-        # Reset game
-        y = 3
-        colx = 8
-        col_speed = MIN_COLSPEED
-        frames_elapsed = 0
-        space = 0
-        col_passed = False
+        if frames % 2 == 0:
+            ball.update()
+    
+        player.update()
+        ai.update()
 
-        # Wait a bit
+        pew.show(screen)
+        pew.tick(1/FPS)
+        frames += 1
+    else:
+        GameOverAnim()
+    
         pew.tick(3)
         screen = pew.Pix()
         pew.show(screen)
+
+        player = Player()
+        ai = Player(7,3,2,"ai")
+        ball = Ball()
+
         game = True
+        player.update()
+        ai.update()
+        ball.update()
+        pew.show(screen)
+
+        
+
