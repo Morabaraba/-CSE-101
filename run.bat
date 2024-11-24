@@ -1,4 +1,6 @@
 @echo off 
+cls
+
 
 if exist F:\ (
         del F:\*.py

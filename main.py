@@ -1,118 +1,217 @@
 import pew
 import random
 
-FPS = 15
-GAME_OVER_FPS = 3
+
+# Space Invaders
 
 pew.init()
 screen = pew.Pix()
-game = True
+game = False 
+
+FPS = 24
+ALIEN_COUNT = 4
+GAME_OVER_FPS = 10
+
+def inScreen(x, y):
+    return 0 <= x < 8 and 0 <= y < 8
+
+class Bullet:
+    def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.shot = False
+
+    def fire(self,x,y):
+        if not self.shot:
+            self.shot = True
+            self.x = x
+            self.y = y
+
+    def draw(self, brightness=3):
+        screen.pixel(self.x,self.y,brightness)
+
+    def update(self, dy):
+        self.draw(0)
+        if inScreen(self.x, self.y) and self.shot:
+            self.y += dy
+            self.draw(3)
+        else:
+            self.shot = False
+
+class AlienBullet(Bullet):
+    def update(self):
+        super().update(1)
+
+class PlayerBullet(Bullet):
+    def update(self):
+        super().update(-1)
+
 
 class Player:
-    def __init__(self, x=0, y=3, height=2, type_player="player"):
+    def __init__(self, x=2, y=7, health=3, width=3):
         self.x = x
         self.y = y
-        self.height = height
-        self.type_player = type_player
+        self.health = health
+        self.width  = width
     
-    def collision(self):
-        if self.x < 0:
-            self.x = 0
-        elif self.x > 7:
-            self.x = 7
+    def getBrightness(self):
+        if self.health >= 3:
+            return 3
+        elif self.health == 2:
+            return 2
+        elif self.health == 1:
+            return 1
+        else:
+            return 0
 
-        if self.y + self.height-1 < 0:
-            self.y = 0 - self.height+1
-        elif self.y > 7:
-            self.y = 7
+    def draw(self, brightness=-1):
+        if brightness == -1:
+            brightness = self.getBrightness()
+
+        for i in range(self.x, self.x + self.width):
+            if inScreen(i, self.y):
+                screen.pixel(i, self.y, brightness)
+
+    def touching(self, x, y):
+        return self.x <= x <= self.x + self.width and y == self.y
     
-    def draw(self, brightness=1):
-        x = self.x
-        y = self.y
-        height = self.height
+    def kill(self):
+        global game 
 
-        for i in range(y, y+height):
-             if 0 <= i < 8:
-                screen.pixel(x,i,brightness) 
+        self.health -= 1
+        if self.health <= 0:
+            game = False
+            self.health = 0
+
+    def boundary(self):
+        if self.x < -1:
+            self.x = -1
+        elif self.x + self.width-2 > 7:
+            self.x = 7 - self.width+2
 
     def update(self):
         self.draw(0)
 
-        keys = pew.keys()
-        
-        if self.type_player == "player": 
-            if keys & pew.K_UP:
-                self.y += -1
-            elif keys & pew.K_DOWN:
-                self.y += 1
+        if self.health > 0:
+            keys = pew.keys()
+            if keys & pew.K_LEFT:
+                self.x -= 1
+            elif keys & pew.K_RIGHT:
+                self.x += 1
+    
+        self.boundary()
+        self.draw()
 
-        self.collision()
-        self.draw(1)
-
-player = Player()
-ai = Player(7,3,2,"ai")
-
-class Ball:
-    def __init__(self, x=2, y=3, dx=1, dy=1):
+class Alien:
+    def __init__(self, x=3, y=2):
         self.x = x
         self.y = y
-        self.dx = dx
-        self.dy = dy
+        self.bullet = AlienBullet()
+        self.alive = True
+        self.updateInterval = random.randint(10, 25+1)
 
-    def touching_player(self, _player):
-        return _player.y <= self.y <= _player.y + _player.height-1
+    def kill(self):
+        self.alive = False
 
-    def player_collision(self):
-        if self.x == 1 and self.touching_player(player):
-            self.dx = -self.dx
-            self.dy = self.randomdir()
-        elif self.x == 6 and self.touching_player(ai):
-            self.dx = -self.dx
-            self.dy = self.randomdir()
+    def draw(self, brightness=2):
+        screen.pixel(self.x,self.y,brightness)
 
+    def touching(self, x, y):
+        return self.x == x and self.y == y
 
-    def wall_collision(self):
-        global game 
+    def update(self, frames):
+        if frames % self.updateInterval == 0:
+           self.bullet.update()
 
-        if self.x <= 0:
-            game = False
-        elif self.x > 7:
-            self.x = 7
-            self.dx = -self.dx
+        if self.alive:
+            self.draw()
+        else:
+            self.draw(0)
 
-        if self.y < 0:
-            self.y = 0
-            self.dy = -self.dy
-        elif self.y > 7:
-            self.y = 7
-            self.dy = -self.dy
+class Aliens:
+    def __init__(self):
+        self.aliens = [] 
+        self.init()  
+
+    def init(self):
+        self.aliens.clear()
+        x = -1
+        for _ in range(ALIEN_COUNT // 2):
+            x += 2
+            self.aliens.append(Alien(x, 1))
+        
+        x = 2
+        for _ in range(ALIEN_COUNT // 2):
+            x += 2
+            self.aliens.append(Alien(x, 3))
+
+    def getAlien(self, alien):
+        return self.aliens[alien]
+
+    def getAlienx(self, alien):
+        return self.getAlien(alien).x
     
-    def randomdir(self):
-        return random.choice([-1, 0, 1])
+    def getAlieny(self, alien):
+        return self.getAlien(alien).y
 
-    def collision(self):
-        self.wall_collision()
-        self.player_collision()
+    def getBullet(self, alien):
+        return self.getAlien(alien).bullet
 
-    def update(self):
-        screen.pixel(self.x, self.y, 0)
+    def checkIfAlienHit(self, bullet_x, bullet_y):
+        for alien in range(ALIEN_COUNT):
+            if self.getAlien(alien).touching(bullet_x, bullet_y):
+                self.getAlien(alien).kill()
 
-        self.collision()
-        self.x += self.dx
-        self.y += self.dy
+    def checkIfPlayerHit(self, player):
+        for alien in range(ALIEN_COUNT):
+            is_player_hit = player.touching(self.getBullet(alien).x, self.getBullet(alien).y) and self.getBullet(alien).shot
 
-        screen.pixel(self.x, self.y, 3)  
-      
-ball = Ball()
+            if is_player_hit:
+                player.kill()
+                self.getAlien(alien).bullet.shot = False
+
+    def updateAlien(self, alien, frames):
+        return self.getAlien(alien).update(frames)
+    
+    def update(self, frames=0):
+        for alien in range(ALIEN_COUNT):
+            self.updateAlien(alien, frames)
+
+    def updateBullets(self):
+        for alien in range(ALIEN_COUNT):
+            new_bullet_can_be_shot = not self.getBullet(alien).shot and self.getAlien(alien).alive and random.randrange(0,2)
+            if new_bullet_can_be_shot:
+                self.getBullet(alien).fire(self.getAlienx(alien), self.getAlieny(alien))
+
+player = Player()
+bullet = PlayerBullet()
+aliens = Aliens()
+
+
+def checkIfShooting():
+    keys = pew.keys()
+    if keys & pew.K_O and not bullet.shot and player.health > 0:
+        bullet.fire(player.x+1, player.y)
+
+def Game(frames=0):
+    bullet.update()
+    aliens.update(frames)
+
+    aliens.checkIfPlayerHit(player)
+    checkIfShooting()
+    
+    aliens.checkIfAlienHit(bullet.x, bullet.y)
+    aliens.updateBullets()
+
+    player.update()
 
 def GameOverAnim():
-    global screen
-
     screen = pew.Pix()
 
     i = 0
     while i <= 4:
         i += 1
+        # Draws game over screen
         if i == 1:
             screen.pixel(2, 2, 3)
             screen.pixel(5, 2, 3)
@@ -133,35 +232,29 @@ def GameOverAnim():
         pew.show(screen)
         pew.tick(1/GAME_OVER_FPS)
 
-
 frames = 0
-while True:
-    if game == True:
-        if frames % 2 == 0:
-            ball.update()
-    
-        player.update()
-        ai.update()
+aliens.init()
+game = True
 
-        pew.show(screen)
-        pew.tick(1/FPS)
-        frames += 1
+while True:     
+    if game:
+        Game(frames)
     else:
         GameOverAnim()
     
         pew.tick(3)
         screen = pew.Pix()
         pew.show(screen)
-
+            
+        aliens.init()
         player = Player()
-        ai = Player(7,3,2,"ai")
-        ball = Ball()
+        bullet = PlayerBullet()
+        aliens = Aliens()
 
         game = True
-        player.update()
-        ai.update()
-        ball.update()
-        pew.show(screen)
+            
 
-        
-
+    pew.show(screen)
+    pew.tick(1/FPS)
+    
+    frames +=1
