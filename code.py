@@ -130,9 +130,33 @@ class Alien:
 class Aliens:
     def __init__(self):
         self.aliens = [] 
-        self.init()  
+        self.init() 
 
     def init(self):
+        self.count = ALIEN_COUNT
+        """
+        # Fly in Animation
+        for i in range(0, 2):
+            screen.pixel(1, i-1, 0)
+            screen.pixel(3, i-1, 0)
+
+            screen.pixel(1, i, 2)
+            screen.pixel(3, i, 2)
+
+            pew.tick(1/5)
+        
+        pew.tick(1/2)
+
+        for i in range(2, 4):
+            screen.pixel(4, i-1, 0)
+            screen.pixel(6, i-1, 0)
+
+            screen.pixel(4, i, 2)
+            screen.pixel(6, i, 2)
+
+            pew.tick(1/5)
+        """
+
         self.aliens.clear()
         x = -1
         for _ in range(ALIEN_COUNT // 2):
@@ -160,6 +184,7 @@ class Aliens:
         for alien in range(ALIEN_COUNT):
             if self.getAlien(alien).touching(bullet_x, bullet_y):
                 self.getAlien(alien).kill()
+                self.count -= 1
 
     def checkIfPlayerHit(self, player):
         for alien in range(ALIEN_COUNT):
@@ -237,6 +262,11 @@ game = True
 
 while True:     
     if game:
+        if aliens.count <= 0:
+            screen = pew.Pix()
+            player.health += 1
+            aliens.init()
+
         Game(frames)
 
         pew.show(screen)
