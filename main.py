@@ -197,13 +197,13 @@ def Game(frames=0):
     bullet.update()
     aliens.update(frames)
 
-    aliens.checkIfPlayerHit(player)
-    checkIfShooting()
+    #aliens.checkIfPlayerHit(player)
+    #checkIfShooting()
     
-    aliens.checkIfAlienHit(bullet.x, bullet.y)
-    aliens.updateBullets()
+    #aliens.checkIfAlienHit(bullet.x, bullet.y)
+    #aliens.updateBullets()
 
-    player.update()
+    #player.update()
 
 def GameOverAnim():
     screen = pew.Pix()
@@ -249,7 +249,6 @@ while True:
         aliens.init()
         player = Player()
         bullet = PlayerBullet()
-        aliens = Aliens()
 
         game = True
             
