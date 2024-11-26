@@ -8,12 +8,16 @@
 !.gitignore
 *.txt
 
-" Back up files ignored
+# Back up files ignored
 backup/
 Backup/
 BACKUP/
-" Executable files ignored
+# Executable files ignored
 exec/
 EXEC/
 Exec/
+# Ignore Lib
+Lib/
+# Ignore the pew library
+pew/
 

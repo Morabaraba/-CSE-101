@@ -1,6 +1,5 @@
-import pew
 import random
-
+import pew
 
 # Space Invaders
 
@@ -21,16 +20,16 @@ class Bullet:
         self.y = 0
         self.shot = False
 
-    def fire(self,x,y):
+    def fire(self, x, y):
         if not self.shot:
             self.shot = True
             self.x = x
             self.y = y
 
     def draw(self, brightness=3):
-        screen.pixel(self.x,self.y,brightness)
+        screen.pixel(self.x, self.y, brightness)
 
-    def update(self, dy):
+    def updateBullet(self, dy):
         self.draw(0)
         if inScreen(self.x, self.y) and self.shot:
             self.y += dy
@@ -40,11 +39,11 @@ class Bullet:
 
 class AlienBullet(Bullet):
     def update(self):
-        super().update(1)
+        super().updateBullet(1)
 
 class PlayerBullet(Bullet):
     def update(self):
-        super().update(-1)
+        super().updateBullet(-1)
 
 
 class Player:
@@ -197,13 +196,13 @@ def Game(frames=0):
     bullet.update()
     aliens.update(frames)
 
-    #aliens.checkIfPlayerHit(player)
-    #checkIfShooting()
+    aliens.checkIfPlayerHit(player)
+    checkIfShooting()
     
-    #aliens.checkIfAlienHit(bullet.x, bullet.y)
-    #aliens.updateBullets()
+    aliens.checkIfAlienHit(bullet.x, bullet.y)
+    aliens.updateBullets()
 
-    #player.update()
+    player.update()
 
 def GameOverAnim():
     screen = pew.Pix()
@@ -234,11 +233,15 @@ def GameOverAnim():
 
 frames = 0
 aliens.init()
-game = True
+game = True 
 
 while True:     
     if game:
         Game(frames)
+
+        pew.show(screen)
+        pew.tick(1 / FPS)
+        frames += 1
     else:
         GameOverAnim()
     
@@ -251,9 +254,3 @@ while True:
         bullet = PlayerBullet()
 
         game = True
-            
-
-    pew.show(screen)
-    pew.tick(1/FPS)
-    
-    frames +=1
