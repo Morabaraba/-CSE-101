@@ -1,5 +1,3 @@
-*.bat
-!run.bat
 *exe
 *.swo 
 *.swp

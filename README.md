@@ -1,7 +1,75 @@
-# PewPew Game Library
+# µCSE-101 Short Course
 
-<p align='center'><i>This repository will store all the games that will make my PewPew game library, the device will be able to switch through multiple games to play your retro classics on the go!</i></p>
+## Overview
 
-```run.bat``` **(Windows)** essentially is a quick workaround to send the ```.py``` files and update the PewPew device to keep this repository and the device separate.
+Welcome to the µCSE-101 Bootcamp! 
 
-**Quick Note (Windows users):** To use ```run.bat ```, you MUST change the drive letter to the correct letter—the one referencing the PewPew v10.2—otherwise any ```.py``` files in the incorrect drive will get deleted!
+This short course is designed to give you a base foundation in 
+basic computer science concepts and electronics. 
+
+Over the next few weeks or months, 
+you'll dive into essential topics 
+that will prepare you for further 
+studies and applications in these 
+fields.
+
+## Course Structure
+
+### Chapter 0: Intro to CS and Electronics
+
+1. **A Story about the Origin of Maths**
+    - How counting/math started (set theory)
+    - Number systems(binary, octal, decimal, hexidecimal)
+    - Bytes and Nibles with Big and Little Endian's
+    
+2. **RGB LED Project using Adruino/c++**
+    - AC/DC, Silicon, Resistors and Diodes
+    - Red Blue Green LEDs, 24 and 32 Bit Numbers
+      using adruino and c++.
+
+### Chapter 1: Basic Computer Science Concepts
+
+1. **Introduction to Programming**
+   - Variables and Data Types
+   - Control Structures (if statements, loops)
+   - Functions and Procedures
+
+2. **Algorithms**
+   - Basic Sorting and Searching Algorithms
+   - Complexity Analysis (Big O Notation)
+   - Recursion and Iterative Algorithms
+
+3. **Data Structures**
+   - Arrays and Linked Lists
+   - Stacks and Queues
+   - Trees and Graphs
+
+### Chapter 2: Basic Electronics
+
+1. **Understanding Electronic Components**
+   - Resistors, Capacitors, and Inductors
+   - Diodes and Transistors
+   - Integrated Circuits
+
+2. **Circuits and Ohm's Law**
+   - Series and Parallel Circuits
+   - Voltage, Current, and Resistance
+   - Using Ohm's Law in Circuit Analysis
+
+3. **Simple Projects**
+   - Building a Basic LED Circuit
+   - Designing a Simple Amplifier
+   - Creating a Basic Power Supply
+
+## Conclusion
+
+By the end of this short course, 
+you will have a tunderstanding of 
+fundamental computer science and 
+electronics concepts. 
+
+You'll be ready to tackle more 
+advanced topics and projects 
+with confidence. 
+
+Let's get started on this exciting journey!
