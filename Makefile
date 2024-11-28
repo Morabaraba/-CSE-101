@@ -1,4 +1,4 @@
-.PHONY: pewpew-run pew-pygame-install pew-pygame-%
+.PHONY: pewpew-run pew-pygame-install pew-pygame-% example-pew-pygame-%
 
 PYTHON3=python
 
@@ -12,3 +12,6 @@ pew-pygame-install:
 
 pew-pygame-%:
 	@set PYTHONPATH=./pew-pygame && $(PYTHON3) ./pew-pygame/autoloader.py ./pewpew-games/$*.py
+
+example-pew-pygame-%:
+	@set PYTHONPATH=./pew-pygame && $(PYTHON3) ./pew-pygame/autoloader.py ./pewpew/games/$*.py
