@@ -88,3 +88,13 @@ By the end of this short course, you will have a solid understanding of fundamen
 You'll be ready to tackle more advanced topics and projects with confidence. 
 
 Let's get started on this exciting journey!
+
+## Projects
+
+### Verskietende Ster | Nyeredzi
+
+See [Arduino Laser Tag - DuinoTag](https://www.youtube.com/watch?v=hSL3l_HHAc8) (8 min youtube video) for project idea and basic build guide.
+
+### SkietSkiet AvontuurEiland | PewPew AdventureIsland
+
+Basic adventure island/mario 2 8-bit like game for the PewPew device.
